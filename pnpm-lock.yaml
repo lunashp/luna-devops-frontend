@@ -11,9 +11,6 @@ importers:
       axios:
         specifier: ^1.8.4
         version: 1.8.4
-      pnpm:
-        specifier: ^10.8.0
-        version: 10.8.0
       react:
         specifier: ^19.0.0
         version: 19.1.0
@@ -63,6 +60,9 @@ importers:
       jsdom:
         specifier: ^26.0.0
         version: 26.0.0
+      pnpm:
+        specifier: ^10.8.0
+        version: 10.8.0
       typescript:
         specifier: ~5.7.2
         version: 5.7.3
