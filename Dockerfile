@@ -5,4 +5,4 @@ WORKDIR /app
 
 COPY dist/ /usr/share/nginx/html
 
-# nginx 기반이면 ENTRYPOINT 필요 없음
+CMD ["nginx", "-g", "daemon off;"]
