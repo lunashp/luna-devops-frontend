@@ -12,6 +12,8 @@ build-sonar:
       - "${SONAR_USER_HOME}/cache"
       - sonar-scanner/
   script:
+    - export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+    - export PATH="$JAVA_HOME/bin:$PATH"
     - export PATH="/opt/sonar-scanner/bin:$PATH"
     - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
   allow_failure: true
