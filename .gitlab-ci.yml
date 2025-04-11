@@ -1,7 +1,4 @@
-stages:
-  - build-sonar
-
-build-sonar:
+ㅇbuild-sonar:
   stage: build-sonar
   tags:
     - sonarqube
