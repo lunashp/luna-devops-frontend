@@ -14,6 +14,7 @@ build-sonar:
   variables:
     JAVA_HOME: "/usr/lib/jvm/java-21-openjdk-amd64"
     PATH: "/opt/sonar-scanner/bin:/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    SONAR_SCANNER_OPTS: "-Djava.home=/usr/lib/jvm/java-21-openjdk-amd64"
   script:
     - echo "✅ Java 확인"
     - java -version
