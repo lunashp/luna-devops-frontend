@@ -11,10 +11,14 @@ build-sonar:
     paths:
       - "${SONAR_USER_HOME}/cache"
       - sonar-scanner/
+  variables:
+    JAVA_HOME: "/usr/lib/jvm/java-21-openjdk-amd64"
+    PATH: "/usr/lib/jvm/java-21-openjdk-amd64/bin:/opt/sonar-scanner/bin:$PATH"
   script:
-    - export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-    - export PATH="$JAVA_HOME/bin:$PATH"
-    - export PATH="/opt/sonar-scanner/bin:$PATH"
+    - echo "✅ Java 확인"
+    - java -version
+    - which java
+    - echo "✅ SonarScanner 확인"
     - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
   allow_failure: true
   rules:
