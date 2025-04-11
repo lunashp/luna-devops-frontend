@@ -11,10 +11,6 @@ build-sonar:
     paths:
       - "${SONAR_USER_HOME}/cache"
       - sonar-scanner/
-  variables:
-    JAVA_HOME: "/usr/lib/jvm/java-21-openjdk-amd64"
-    # $PATH 사용하지 않고, 실제 경로를 직접 지정 (기본 명령어가 안 먹는 현상 방지)
-    PATH: "/usr/lib/jvm/java-21-openjdk-amd64/bin:/opt/sonar-scanner/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   script:
     - echo "✅ Java 확인"
     - java -version
