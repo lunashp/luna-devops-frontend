@@ -26,7 +26,8 @@ build-sonar:
     - echo "✅ SonarScanner 직접 실행 확인"
     - /opt/sonar-scanner/bin/sonar-scanner -v || echo "❌ 직접 실행 실패"
     - echo "✅ sonar-scanner 실행"
-    - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}"
+    - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}" -Dsonar.login="${SONAR_TOKEN}" -X
+
   allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
