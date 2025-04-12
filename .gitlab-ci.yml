@@ -24,7 +24,6 @@ build-sonar:
     - echo "✅ SonarScanner 존재 확인"
     - ls -l /opt/sonar-scanner/bin/sonar-scanner || echo "❌ SonarScanner가 없습니다"
     - echo "✅ SonarScanner 직접 실행 확인"
-    - echo "✅ SONAR_TOKEN 길이 확인: ${#SONAR_TOKEN}"
     - /opt/sonar-scanner/bin/sonar-scanner -v || echo "❌ 직접 실행 실패"
     - echo "✅ sonar-scanner 실행"
     - sonar-scanner -Dsonar.host.url="${SONAR_HOST_URL}" -Dsonar.login="${SONAR_TOKEN}" -X
