@@ -1,5 +1,5 @@
 # frontend-base
-FROM 34.64.54.73:5000/devops-project/frontend-base:node20
+FROM 34.47.90.255:5000/devops-project/frontend-base:node20
 
 WORKDIR /app
 
