@@ -4,3 +4,4 @@
 
 - update sonar token
 - None ui repo test
+- clone vm
