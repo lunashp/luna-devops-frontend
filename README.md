@@ -1,3 +1,5 @@
 ## test
 
 ### gitlab ci/cd, sonarqube, redmine 연동 테스트
+
+- update sonar token
