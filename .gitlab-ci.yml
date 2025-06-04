@@ -1,3 +1,5 @@
+yaml
+복사편집
 stages:
   - build-sonar
 
@@ -17,16 +19,8 @@ build-sonar:
     SONAR_SCANNER_OPTS: "-Djava.home=/usr/lib/jvm/java-21-openjdk-amd64"
 
   script:
-    - echo "✅ Java 확인"
-    - java -version
-    - echo "✅ SonarScanner 버전"
-    - sonar-scanner -v
-    - echo "✅ sonar-project.properties 내용 확인"
-    - cat sonar-project.properties
-    - echo "✅ sonar-scanner 실행"
-    - sonar-scanner -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.login="$SONAR_TOKEN" -X
-
-  allow_failure: true
+    - chmod +x ci/run-sonar.sh ci/update-redmine.sh
+    - ./ci/run-sonar.sh
   rules:
-#    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_COMMIT_BRANCH == 'main'
+
