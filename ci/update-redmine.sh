@@ -1,5 +1,3 @@
-bash
-복사편집
 #!/bin/bash
 set -e
 

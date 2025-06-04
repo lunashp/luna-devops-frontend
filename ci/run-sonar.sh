@@ -1,5 +1,3 @@
-bash
-복사편집
 #!/bin/bash
 set -e
 
@@ -14,6 +12,7 @@ CE_TASK_URL=$(echo "$SCAN_OUTPUT" | grep -o '"ceTaskUrl":"[^"]*' | cut -d'"' -f4
 
 if [ -z "$CE_TASK_URL" ]; then
   echo "❌ CE Task URL을 찾을 수 없습니다."
+  ./ci/update-redmine.sh "실패"
   exit 1
 fi
 
@@ -22,15 +21,30 @@ echo "📡 CE Task URL: $CE_TASK_URL"
 echo "⏳ SonarQube 분석 상태 확인 중..."
 for i in {1..60}; do
   RESPONSE=$(curl -s -u "$SONAR_TOKEN:" "$CE_TASK_URL")
-
   STATUS=$(echo "$RESPONSE" | grep -o '"status":"[^"]*' | cut -d':' -f2 | tr -d '"')
-
+  
   echo "🔄 현재 상태: $STATUS"
 
   if [[ "$STATUS" == "SUCCESS" ]]; then
-    echo "✅ 분석 성공!"
-    ./ci/update-redmine.sh "성공"
-    exit 0
+    # 분석이 성공적으로 완료되면 Quality Gate 상태 확인
+    TASK_ID=$(echo "$CE_TASK_URL" | awk -F'/' '{print $NF}')
+    ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/ce/task?id=$TASK_ID" | grep -o '"analysisId":"[^"]*' | cut -d'"' -f4)
+    
+    if [ -n "$ANALYSIS_ID" ]; then
+      QUALITY_GATE_STATUS=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?analysisId=$ANALYSIS_ID" | grep -o '"status":"[^"]*' | cut -d'"' -f4)
+      
+      echo "🎯 Quality Gate 상태: $QUALITY_GATE_STATUS"
+      
+      if [[ "$QUALITY_GATE_STATUS" == "OK" ]]; then
+        echo "✅ Quality Gate 통과!"
+        ./ci/update-redmine.sh "성공"
+        exit 0
+      else
+        echo "❌ Quality Gate 실패!"
+        ./ci/update-redmine.sh "실패"
+        exit 1
+      fi
+    fi
   elif [[ "$STATUS" == "FAILED" ]]; then
     echo "❌ 분석 실패!"
     ./ci/update-redmine.sh "실패"
@@ -41,5 +55,6 @@ for i in {1..60}; do
 done
 
 echo "⏰ 타임아웃: 분석 상태를 5분 내 확인하지 못함"
+./ci/update-redmine.sh "실패"
 exit 1
 
