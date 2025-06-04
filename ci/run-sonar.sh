@@ -37,15 +37,12 @@ fi
 echo "📋 SonarScanner 출력:"
 echo "$SCAN_OUTPUT"
 
-# Quality Gate 실패 확인
+# Quality Gate 상태 확인
 if echo "$SCAN_OUTPUT" | grep -q "QUALITY GATE STATUS: FAILED"; then
     echo "❌ Quality Gate 실패"
     ./ci/update-redmine.sh "실패"
     exit 1
-fi
-
-# 성공 케이스 확인 (ceTaskUrl이 없더라도 PASSED면 성공으로 처리)
-if echo "$SCAN_OUTPUT" | grep -q "QUALITY GATE STATUS: PASSED"; then
+elif echo "$SCAN_OUTPUT" | grep -q "QUALITY GATE STATUS: PASSED"; then
     echo "✅ Quality Gate 통과!"
     ./ci/update-redmine.sh "성공"
     exit 0
@@ -55,7 +52,6 @@ fi
 if echo "$SCAN_OUTPUT" | grep -q "ceTaskUrl"; then
     echo "📦 분석 완료 후 ceTaskUrl 추출"
     CE_TASK_URL=$(echo "$SCAN_OUTPUT" | grep -o '"ceTaskUrl":"[^"]*' | cut -d'"' -f4)
-
     echo "📡 CE Task URL: $CE_TASK_URL"
 
     echo "⏳ SonarQube 분석 상태 확인 중..."
@@ -66,27 +62,24 @@ if echo "$SCAN_OUTPUT" | grep -q "ceTaskUrl"; then
         echo "🔄 현재 상태: $STATUS"
 
         if [[ "$STATUS" == "SUCCESS" ]]; then
-            # 분석이 성공적으로 완료되면 Quality Gate 상태 확인
             TASK_ID=$(echo "$CE_TASK_URL" | awk -F'/' '{print $NF}')
             ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/ce/task?id=$TASK_ID" | grep -o '"analysisId":"[^"]*' | cut -d'"' -f4)
             
             if [ -n "$ANALYSIS_ID" ]; then
                 QUALITY_GATE_STATUS=$(curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?analysisId=$ANALYSIS_ID" | grep -o '"status":"[^"]*' | cut -d'"' -f4)
-                
                 echo "🎯 Quality Gate 상태: $QUALITY_GATE_STATUS"
                 
                 if [[ "$QUALITY_GATE_STATUS" == "OK" ]]; then
                     echo "✅ Quality Gate 통과!"
                     ./ci/update-redmine.sh "성공"
                     exit 0
-                else
-                    echo "❌ Quality Gate 실패!"
-                    ./ci/update-redmine.sh "실패"
-                    exit 1
                 fi
             fi
+            echo "❌ Quality Gate 검증 실패"
+            ./ci/update-redmine.sh "실패"
+            exit 1
         elif [[ "$STATUS" == "FAILED" ]]; then
-            echo "❌ 분석 실패!"
+            echo "❌ 분석 실패"
             ./ci/update-redmine.sh "실패"
             exit 1
         fi
