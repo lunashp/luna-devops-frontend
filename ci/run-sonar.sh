@@ -1,11 +1,41 @@
 #!/bin/bash
-set -e
+
+# 환경변수 체크
+if [ -z "$SONAR_HOST_URL" ]; then
+    echo "❌ Error: SONAR_HOST_URL 환경변수가 설정되지 않았습니다."
+    ./ci/update-redmine.sh "실패"
+    exit 1
+fi
+
+if [ -z "$SONAR_TOKEN" ]; then
+    echo "❌ Error: SONAR_TOKEN 환경변수가 설정되지 않았습니다."
+    ./ci/update-redmine.sh "실패"
+    exit 1
+fi
 
 echo "✅ SonarScanner 실행"
-SCAN_OUTPUT=$(sonar-scanner \
+echo "🔍 SONAR_HOST_URL: $SONAR_HOST_URL"
+
+# sonar-scanner 명령어가 있는지 확인
+if ! command -v sonar-scanner &> /dev/null; then
+    echo "❌ Error: sonar-scanner command not found"
+    ./ci/update-redmine.sh "실패"
+    exit 1
+fi
+
+if ! SCAN_OUTPUT=$(sonar-scanner \
   -Dsonar.host.url="$SONAR_HOST_URL" \
   -Dsonar.login="$SONAR_TOKEN" \
-  2>&1)
+  2>&1); then
+    echo "❌ SonarScanner 실행 중 에러 발생"
+    echo "📋 Error output:"
+    echo "$SCAN_OUTPUT"
+    ./ci/update-redmine.sh "실패"
+    exit 1
+fi
+
+echo "📋 SonarScanner 출력:"
+echo "$SCAN_OUTPUT"
 
 # Quality Gate 실패 확인
 if echo "$SCAN_OUTPUT" | grep -q "QUALITY GATE STATUS: FAILED"; then
