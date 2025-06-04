@@ -2,10 +2,22 @@
 set -e
 
 echo "✅ SonarScanner 실행"
-SCAN_OUTPUT=$(sonar-scanner \
+if ! SCAN_OUTPUT=$(sonar-scanner \
   -Dsonar.host.url="$SONAR_HOST_URL" \
   -Dsonar.login="$SONAR_TOKEN" \
-  -X)
+  2>&1); then
+    echo "❌ SonarScanner 실행 실패"
+    echo "$SCAN_OUTPUT"
+    ./ci/update-redmine.sh "실패"
+    exit 1
+fi
+
+# Quality Gate 상태 즉시 확인
+if echo "$SCAN_OUTPUT" | grep -q "QUALITY GATE STATUS: FAILED"; then
+    echo "❌ Quality Gate 실패"
+    ./ci/update-redmine.sh "실패"
+    exit 1
+fi
 
 echo "📦 분석 완료 후 ceTaskUrl 추출"
 CE_TASK_URL=$(echo "$SCAN_OUTPUT" | grep -o '"ceTaskUrl":"[^"]*' | cut -d'"' -f4)
