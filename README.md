@@ -6,3 +6,4 @@
 - None ui repo test
 - clone vm
 - update url
+- test sonar, gitlab, redmine
