@@ -1,23 +1,14 @@
 stages:
-  - build-sonar
+  - sonar-check
 
-build-sonar:
-  stage: build-sonar
+sonarqube-check:
+  stage: sonar-check
+  image: sonarsource/sonar-scanner-cli:latest
   tags:
     - sonarqube
-  cache:
-    policy: pull-push
-    key: "sonar-cache-$CI_COMMIT_REF_SLUG"
-    paths:
-      - "${SONAR_USER_HOME}/cache"
-      - sonar-scanner/
-  variables:
-    JAVA_HOME: "/usr/lib/jvm/java-21-openjdk-amd64"
-    PATH: "/opt/sonar-scanner/bin:/usr/lib/jvm/java-21-openjdk-amd64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-    SONAR_SCANNER_OPTS: "-Djava.home=/usr/lib/jvm/java-21-openjdk-amd64"
-
+  before_script:
+    - chmod +x ci/scan-and-update.sh
   script:
-    - chmod +x ci/run-sonar.sh ci/update-redmine.sh
-    - ./ci/run-sonar.sh
+    - ./ci/scan-and-update.sh
   rules:
-    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == "main"
