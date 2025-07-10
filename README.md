@@ -7,3 +7,5 @@
 - clone vm
 - update url
 - test sonar, gitlab, redmine
+
+### devops 통합 테스트
